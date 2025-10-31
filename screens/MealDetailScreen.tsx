@@ -1,8 +1,10 @@
 import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useCallback, useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { RootStackParamList } from '../types/navigation';
 
+import IconButton from '../components/IconButton';
 import AllergenTags from '../components/MealDetail/AllergenTags';
 import List from '../components/MealDetail/List';
 import Subtitle from '../components/MealDetail/Subtitle';
@@ -16,28 +18,52 @@ type MealsDetailScreenProps = {
 
 function MealsDetailScreen({ route, navigation }: MealsDetailScreenProps) {
   const mealId = route.params.mealId;
-
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  if (!selectedMeal) return null;
+  const headerButtonPressHandler = useCallback((): void => {
+    console.log('Pressed');
+  }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <IconButton
+          icon="star"
+          color="white"
+          onPress={headerButtonPressHandler}
+        />
+      ),
+    });
+  }, [navigation, headerButtonPressHandler]);
+
+  if (!selectedMeal)
+    return (
+      <View style={styles.centered}>
+        <Text style={{ color: 'white' }}>Nie znaleziono posiłku.</Text>
+      </View>
+    );
 
   return (
     <ScrollView style={styles.rootContainer}>
       <Image source={{ uri: selectedMeal.imageUrl }} style={styles.image} />
       <Text style={styles.title}>{selectedMeal.title}</Text>
+
       <MealDetails
         duration={selectedMeal.duration}
         complexity={selectedMeal.complexity}
         affordability={selectedMeal.affordability}
         textStyle={styles.detailText}
       />
+
       <View style={styles.listOuterContainer}>
         <View style={styles.listContainer}>
-          <Subtitle>Składniki: </Subtitle>
+          <Subtitle>Składniki:</Subtitle>
           <List data={selectedMeal.ingredients} />
-          <Subtitle>Kroki: </Subtitle>
+
+          <Subtitle>Kroki:</Subtitle>
           <List data={selectedMeal.steps} />
-          <Subtitle>Alergeny: </Subtitle>
+
+          <Subtitle>Alergeny:</Subtitle>
           <AllergenTags
             isGlutenFree={selectedMeal.isGlutenFree}
             isLactoseFree={selectedMeal.isLactoseFree}
@@ -75,5 +101,10 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     width: '80%',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
