@@ -3,3 +3,7 @@ export type RootStackParamList = {
   MealsOverview: { categoryId: string };
   MealDetail: { mealId: string };
 };
+export type BottomTabParamList = {
+  Kategorie: undefined;
+  Ulubione: undefined;
+};

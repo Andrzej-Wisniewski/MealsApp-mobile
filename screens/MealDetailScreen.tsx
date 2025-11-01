@@ -4,12 +4,15 @@ import { useCallback, useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { RootStackParamList } from '../types/navigation';
 
+import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '../components/IconButton';
 import AllergenTags from '../components/MealDetail/AllergenTags';
 import List from '../components/MealDetail/List';
 import Subtitle from '../components/MealDetail/Subtitle';
 import MealDetails from '../components/MealDetails';
 import { MEALS } from '../data/dummy-data';
+import { addFavorite, removeFavorite } from '../store/favorites';
+import { AppDispatch, RootState } from '../store/store';
 
 type MealsDetailScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MealDetail'>;
@@ -17,24 +20,37 @@ type MealsDetailScreenProps = {
 };
 
 function MealsDetailScreen({ route, navigation }: MealsDetailScreenProps) {
+  const favoriteMealIds = useSelector(
+    (state: RootState) => state.favoriteMeals.ids
+  );
+  const dispatch = useDispatch<AppDispatch>();
+
   const mealId = route.params.mealId;
+
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  const headerButtonPressHandler = useCallback((): void => {
-    console.log('Pressed');
-  }, []);
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
+
+  const changeFavoriteStatusHandler = useCallback(() => {
+    if (!selectedMeal) return;
+    if (mealIsFavorite) {
+      dispatch(removeFavorite({ id: mealId }));
+    } else {
+      dispatch(addFavorite({ id: mealId }));
+    }
+  }, [dispatch, mealIsFavorite, mealId]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <IconButton
-          icon="star"
+          icon={mealIsFavorite ? 'star' : 'star-outline'}
           color="white"
-          onPress={headerButtonPressHandler}
+          onPress={changeFavoriteStatusHandler}
         />
       ),
     });
-  }, [navigation, headerButtonPressHandler]);
+  }, [navigation, changeFavoriteStatusHandler]);
 
   if (!selectedMeal)
     return (

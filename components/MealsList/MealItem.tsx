@@ -8,9 +8,9 @@ import {
   Text,
   View,
 } from 'react-native';
-import { RootStackParamList } from '../types/navigation';
+import { RootStackParamList } from '../../types/navigation';
 
-import MealDetails from './MealDetails';
+import MealDetails from '../MealDetails';
 
 type MealItemNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
